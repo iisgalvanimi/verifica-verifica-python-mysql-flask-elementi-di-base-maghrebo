@@ -110,3 +110,41 @@ def delete(id):
         return jsonify({'message': 'Rettile eliminato con successo'}), 200
     else:
         return jsonify({'message': 'Errore durante l\'eliminazione del rettile o ID del rettile non trovato'}), 404
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#Definizione della funzione per il metodo PUT
+
+#Funzione dell'effettiva query al database passando valori di id e dati
+def updateRettile(id, data):
+    #Instaurazione della query
+    query = "UPDATE rettili SET nome = %s, famiglia = %s, dimensioni = %s, habitat = %s, alimentazione = %s WHERE id = %s"
+    #Estrazione dei valori dal file json ricevuto
+    valori = (data['nome'], data['famiglia'], data['dimensioni'], data['habitat'], data['alimentazione'], id)
+    #Esecuzione sul database con il cursore, unendo la query e i valori
+    mycursor.execute(query, valori)
+    #Commit sul file per rendere effettive le modifiche al database
+    mydb.commit()
+    #Ritorno della variabile del conteggio delle righe per verifica della correttività
+    return mycursor.rowcount
+
+
+#Route per identificare la richiesta e il percorso inserito dall'utente
+@app.route("/update/<id>", methods=["PUT"])
+#Funzione eseguita dopo la route
+def update(id):
+    #Immaginamento del file json nella variabile data
+    data = request.json
+    #Dichiarazione dei file necessari
+    required_fields = ['nome', 'famiglia', 'dimensioni', 'habitat', 'alimentazione']
+    #Verifica se tutti i campi son stati inserito in caso contrario un messaggio
+    if not all(field in data for field in required_fields):
+        return jsonify({'message': 'Dati mancanti'}), 400
+
+    #Creazione variabile la quale ricevera la variabile di ritorno della funzione correlata
+    rows_updated = updateRettile(id, data)
+    #Verifica che l'inserimento sia avvenuto giustamente
+    if rows_updated == 1:
+        return jsonify({'message': 'Rettile aggiornato con successo'}), 200
+    else:
+        return jsonify({'message': 'Errore durante l aggiornamento del rettile oppure ID del rettile non trovato'}), 404
