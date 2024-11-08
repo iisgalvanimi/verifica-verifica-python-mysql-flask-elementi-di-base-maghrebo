@@ -148,3 +148,27 @@ def update(id):
         return jsonify({'message': 'Rettile aggiornato con successo'}), 200
     else:
         return jsonify({'message': 'Errore durante l aggiornamento del rettile oppure ID del rettile non trovato'}), 404
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------------
+#Definizione della funzione per l'estrazione dei rettili con alimentazione di insetti
+
+#Definizione della funzione per eseguire la query sul database
+def getAlimentazione(alimentazione):
+    #Instaurazione della query
+    query = "SELECT * FROM rettili WHERE alimentazione = %s"
+    #Con il cursore eseguo sia la query a cui attribuisco il valore inserito dall'utente nella route
+    mycursor.execute(query, (alimentazione,))
+    #salvo il risultato delle righe di database che mi vengono restituite
+    rows = mycursor.fetchall()
+    #Ritorno della variabile indietro nella funzione da cui è stata richiamata
+    return rows
+
+#Definizione della route sulla quale agire per l'alimentazione
+@app.route("/<alimentazione>")
+#Creazione della funzione eseguita subito dopo
+def ricerca_da_Alimentazione(alimentazione):
+    #Salvo la variabile di ritorno data dalla funzione in questa variabile
+    data = getAlimentazione(alimentazione)
+    #Do un messaggio di ritorno con file json all'utente con il risultato dei rettili che si cibano con quell'aliemntazione
+    return jsonify({"I rettili che hanno l'alimentazione scelta sono: ": data})
